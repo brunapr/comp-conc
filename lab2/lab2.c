@@ -3,8 +3,6 @@
 #include <pthread.h>
 #include "timer.h"
 
-#define RAND_MAX 5
-
 float *firstMatrix;
 float *secondMatrix;
 float *outputMatrix; // resultado da matriz concorrente
@@ -16,18 +14,15 @@ typedef struct {
   int dim; 
 } tArgs;
 
-srand(time(NULL));
-
 // funcao que a sequencial executara
-void* multiplySequential(void *arg) {
-  tArgs *args = (tArgs*) arg;
+void multiplySequential(int dim) {
   //linha
-  for (int i = 0; i < args->dim; i++) {
+  for (int i = 0; i < dim; i++) {
     //coluna
-    for (int j = 0; j < args->dim; j++) {
+    for (int j = 0; j < dim; j++) {
       // linha da primeira matriz e coluna da segunda
-      for (int k = 0; k < args->dim; k++) {
-          outputSequential[i*args->dim + j] += firstMatrix[i*args->dim +k] * secondMatrix[k*args->dim +j];
+      for (int k = 0; k < dim; k++) {
+          outputSequential[i*dim + j] += firstMatrix[i*dim +k] * secondMatrix[k*dim +j];
       }
     }
   }
@@ -37,8 +32,8 @@ void* multiplySequential(void *arg) {
 void* multiply(void *arg) {
   tArgs *args = (tArgs*) arg;
   int initialLine = args->id; // linha inicial depende da thread que esta executando
-  
-  // linhas 
+
+  //linhas 
   for (int i = initialLine; i < args->dim; i+=nthreads) {
     // colunas 
     for (int j = 0; j < args->dim; j++) {
@@ -48,15 +43,15 @@ void* multiply(void *arg) {
       }
     }
   }
-  pthread_exit(NULL);
+  
+  return NULL; 
 }
 
 // compara o array esperado com o obtido
-void* analyzeOutput(void *arg) {
-  tArgs *args = (tArgs*) arg;
-  for (int i = 0; i < args->dim; i++) {
+void analyzeOutput(int dim) {
+  for (int i = 0; i < dim; i++) {
     if (outputMatrix[i] != outputSequential[i]) {
-      printf("Erro na posicao %d.\nValor esperado: %d\nEncontrado: %d\n", i, outputSequential[i], outputMatrix[i]);
+      printf("Erro na posicao %d.\nValor esperado: %lf\nEncontrado: %lf\n", i, outputSequential[i], outputMatrix[i]);
       exit(1);
     }
   }
@@ -76,7 +71,6 @@ int main(int argc, char* argv[]) {
   int dim; // dimensao das matrizes 
   pthread_t *tid; // identificadores das threads 
   tArgs *args; // idetificadores locais 
-  double start; // controle de tempo
 
   if (argc < 3) {
     printf("Digite: %s <dimensao da matriz> <numero de threads>\n", argv[0]);
@@ -119,7 +113,7 @@ int main(int argc, char* argv[]) {
 
   // calculo da matriz sequencial e preenchimento da outputSequential
   GET_TIME(start)
-  multiplySequential()
+  multiplySequential(dim)
   showTime(start, "multiplicacao da matriz sequencial (a)")
 
   // criacao das threads, execucao da multiplicacao e espera pelo termino das threads
@@ -142,7 +136,7 @@ int main(int argc, char* argv[]) {
   showTime(start, "criacao das threads e multiplicacao (b)");
 
   // comparacao entre as duas saidas
-  analyzeOutput();
+  analyzeOutput(dim);
   
   // liberacao da memoria
   free(firstMatrix);
