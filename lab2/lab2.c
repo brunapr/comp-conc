@@ -2,11 +2,13 @@
 #include <stdlib.h> 
 #include <pthread.h>
 #include "timer.h"
-#include "sequencial.c"
+
+#define RAND_MAX 5
 
 float *firstMatrix;
 float *secondMatrix;
-float *outputMatrix;
+float *outputMatrix; // resultado da matriz concorrente
+float *outputSequential; // resultado da matriz sequencial
 int nthreads;
 
 typedef struct {
@@ -14,13 +16,30 @@ typedef struct {
   int dim; 
 } tArgs;
 
+srand(time(NULL));
+
+// funcao que a sequencial executara
+void* multiplySequential(void *arg) {
+  tArgs *args = (tArgs*) arg;
+  //linha
+  for (int i = 0; i < args->dim; i++) {
+    //coluna
+    for (int j = 0; j < args->dim; j++) {
+      // linha da primeira matriz e coluna da segunda
+      for (int k = 0; k < args->dim; k++) {
+          outputSequential[i*args->dim + j] += firstMatrix[i*args->dim +k] * secondMatrix[k*args->dim +j];
+      }
+    }
+  }
+}
+
 // funcao que as threads executarao 
 void* multiply(void *arg) {
   tArgs *args = (tArgs*) arg;
   int initialLine = args->id; // linha inicial depende da thread que esta executando
   
   // linhas 
-  for (int i = initialLine;  i < args->dim; i+=nthreads) {
+  for (int i = initialLine; i < args->dim; i+=nthreads) {
     // colunas 
     for (int j = 0; j < args->dim; j++) {
       // linha da primeira matriz e coluna da segunda
@@ -30,6 +49,18 @@ void* multiply(void *arg) {
     }
   }
   pthread_exit(NULL);
+}
+
+// compara o array esperado com o obtido
+void* analyzeOutput(void *arg) {
+  tArgs *args = (tArgs*) arg;
+  for (int i = 0; i < args->dim; i++) {
+    if (outputMatrix[i] != outputSequential[i]) {
+      printf("Erro na posicao %d.\nValor esperado: %d\nEncontrado: %d\n", i, outputSequential[i], outputMatrix[i]);
+      exit(1);
+    }
+  }
+  printf("Saida correta. Todas as posicoes conferem. \n");
 }
 
 // calcula e exibe o tempo gasto em uma tarefa
@@ -56,8 +87,6 @@ int main(int argc, char* argv[]) {
   nthreads = atoi(argv[2]);
   if (nthreads > dim) nthreads=dim;
 
-  GET_TIME(start);
-
   // alocacao de memoria
   firstMatrix = (float *) malloc(sizeof(float) * dim * dim);
   if (firstMatrix == NULL) { printf("ERRO--malloc\n"); return 2; }
@@ -68,18 +97,18 @@ int main(int argc, char* argv[]) {
   outputMatrix = (float *) malloc(sizeof(float) * dim * dim);
   if (outputMatrix == NULL) { printf("ERRO--malloc\n"); return 2; }
 
+  outputSequential = (float *) malloc(sizeof(float) * dim * dim);
+  if (outputSequential == NULL) { printf("ERRO--malloc\n"); return 2; } 
+
   //inicializa matrizes
   for (int i = 0; i < dim; i++) {
     for (int j = 0; j < dim; j++) {
-      firstMatrix[i*dim + j] = 1;
-      secondMatrix[i*dim + j] = 2;
+      firstMatrix[i*dim + j] = rand();
+      secondMatrix[i*dim + j] = rand();
       outputMatrix[i*dim + j] = 0;
+      outputSequential[i*dim + j] = 0;
     }
   }
-  showTime(start, "alocacao e inicializacao");
-
-  // criacao das threads, execucao da multiplicacao e espera pelo termino das threads
-  GET_TIME(start);
 
   // alocacao das estruturas
   tid = (pthread_t*) malloc(sizeof(pthread_t)*nthreads);
@@ -87,6 +116,14 @@ int main(int argc, char* argv[]) {
 
   args = (tArgs*) malloc(sizeof(tArgs)*nthreads);
   if (args == NULL) { puts("ERRO--malloc\n"); return 2; }
+
+  // calculo da matriz sequencial e preenchimento da outputSequential
+  GET_TIME(start)
+  multiplySequential()
+  showTime(start, "multiplicacao da matriz sequencial (a)")
+
+  // criacao das threads, execucao da multiplicacao e espera pelo termino das threads
+  GET_TIME(start);
 
   // cria as threads e faz a multiplicacao
   for (int i = 0; i < nthreads; i++) {
@@ -104,16 +141,16 @@ int main(int argc, char* argv[]) {
 
   showTime(start, "criacao das threads e multiplicacao (b)");
 
-  GET_TIME(start);
+  // comparacao entre as duas saidas
+  analyzeOutput();
   
   // liberacao da memoria
   free(firstMatrix);
   free(secondMatrix);
   free(outputMatrix);
+  free(outputSequential);
   free(args);
   free(tid);
-
-  showTime(start, "finalizacao");
 
   return 0;
 }

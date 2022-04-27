@@ -2,11 +2,14 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include "timer.h"
+#define RAND_MAX 5
 
 float *firstMatrix;
 float *secondMatrix;
 float *outputMatrix;
 int dim; //dimensao das matrizes de entrada
+
+srand(time(NULL));
 
 int main(int argc, char* argv[]) {
    double start, finish, elapsed;
@@ -32,8 +35,8 @@ int main(int argc, char* argv[]) {
    // inicializacao
    for (int i = 0; i < dim; i++) {
        for (int j = 0; j < dim; j ++) {
-           firstMatrix[i*dim + j] = 1;
-           secondMatrix[i*dim + j] = 2;
+           firstMatrix[i*dim + j] = rand();
+           secondMatrix[i*dim + j] = rand();
            outputMatrix[i*dim + j] = 0;
        }
    }
@@ -51,7 +54,7 @@ int main(int argc, char* argv[]) {
        //coluna
        for (int j = 0; j < dim; j++) {
            for (int k = 0; k < dim; k++) {
-               outputMatrix[i*dim + j] += firstMatrix[i*dim +j] * secondMatrix[i*dim +j];
+               outputMatrix[i*dim + j] += firstMatrix[i*dim +k] * secondMatrix[k*dim +j];
            }
        }
    }
@@ -64,14 +67,14 @@ int main(int argc, char* argv[]) {
 
    GET_TIME(start);
 
-   puts("matriz resultante:");
-   for (int i = 0; i < dim; i++) {
-       for (int j = 0; j < dim; j ++) {
-           printf("%.1lf ", outputMatrix[i*dim +j]);
-       }
-       printf("\n");
-   }
-   puts("");
+//    puts("matriz resultante:");
+//    for (int i = 0; i < dim; i++) {
+//        for (int j = 0; j < dim; j ++) {
+//            printf("%.1lf ", outputMatrix[i*dim +j]);
+//        }
+//        printf("\n");
+//    }
+//    puts("");
 
    GET_TIME(finish);
    elapsed = finish - start;
