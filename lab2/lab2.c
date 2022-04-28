@@ -70,7 +70,8 @@ int main(int argc, char* argv[]) {
 
   int dim; // dimensao das matrizes 
   pthread_t *tid; // identificadores das threads 
-  tArgs *args; // idetificadores locais 
+  tArgs *args; // idetificadores locais
+  double start; // controla o tempo 
 
   if (argc < 3) {
     printf("Digite: %s <dimensao da matriz> <numero de threads>\n", argv[0]);
@@ -112,9 +113,9 @@ int main(int argc, char* argv[]) {
   if (args == NULL) { puts("ERRO--malloc\n"); return 2; }
 
   // calculo da matriz sequencial e preenchimento da outputSequential
-  GET_TIME(start)
-  multiplySequential(dim)
-  showTime(start, "multiplicacao da matriz sequencial (a)")
+  GET_TIME(start);
+  multiplySequential(dim);
+  showTime(start, "multiplicacao da matriz sequencial (a)");
 
   // criacao das threads, execucao da multiplicacao e espera pelo termino das threads
   GET_TIME(start);
