@@ -35,8 +35,8 @@ int main(int argc, char* argv[]) {
    // inicializacao
    for (int i = 0; i < dim; i++) {
        for (int j = 0; j < dim; j ++) {
-           firstMatrix[i*dim + j] = rand();
-           secondMatrix[i*dim + j] = rand();
+           firstMatrix[i*dim + j] = (rand() %10);
+           secondMatrix[i*dim + j] = (rand() %10);
            outputMatrix[i*dim + j] = 0;
        }
    }

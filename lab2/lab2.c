@@ -1,5 +1,6 @@
 #include <stdio.h>
-#include <stdlib.h> 
+#include <time.h>
+#include <stdlib.h>
 #include <pthread.h>
 #include "timer.h"
 
@@ -98,8 +99,8 @@ int main(int argc, char* argv[]) {
   //inicializa matrizes
   for (int i = 0; i < dim; i++) {
     for (int j = 0; j < dim; j++) {
-      firstMatrix[i*dim + j] = rand();
-      secondMatrix[i*dim + j] = rand();
+      firstMatrix[i*dim + j] = (rand() %10);
+      secondMatrix[i*dim + j] = (rand() %10);
       outputMatrix[i*dim + j] = 0;
       outputSequential[i*dim + j] = 0;
     }
