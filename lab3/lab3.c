@@ -45,7 +45,7 @@ void* tarefa(void *arg) {
 }
 
 int main(int argc, char *argv[]) {
-  infoVetor *seqValues, *conValues, *retorno;
+  infoVetor seqValues, conValues, *retorno;
   pthread_t *tid;
   double start, finish;
 
@@ -57,35 +57,31 @@ int main(int argc, char *argv[]) {
 
   N = atoll(argv[1]);
   nthreads = atoi(argv[2]);
-  if (nthreads > N) nthreads = N;
+  //if (nthreads > N) nthreads = N;
 
   // alocacao de memoria
   vetor = (float*) malloc(sizeof(float)*N);
   if(vetor == NULL) { fprintf(stderr, "ERRO--malloc\n"); return 2; }
 
-  seqValues = (infoVetor*) malloc(sizeof(infoVetor*)*N);
-  if(seqValues == NULL) { fprintf(stderr, "ERRO--malloc\n"); return 2; }
-
-  conValues = (infoVetor*) malloc(sizeof(infoVetor*)*N);
-  if(conValues == NULL) { fprintf(stderr, "ERRO--malloc\n"); return 2; }
-
   // preenche o vetor com numeros aleatorios
-  for(int i = 0; i < N; i++) {
-    vetor[i] = rand()%1000;
+  srand(time(NULL));
+
+  for(long int i = 0; i < N; i++) {
+    vetor[i] = ((float) rand()) / ((float) RAND_MAX * N);
   }
 
   // valores de min e max inicializados
-  conValues->max = conValues->min = seqValues->max = seqValues->min = vetor[0];
+  conValues.max = conValues.min = seqValues.max = seqValues.min = vetor[0];
 
   // calculo sequencial
   GET_TIME(start);
 
   for (long long int i = 1; i < N; i++) {
-    if(vetor[i] > seqValues->max) {
-      seqValues->max = vetor[i];
+    if(vetor[i] > seqValues.max) {
+      seqValues.max = vetor[i];
     }
-    if(vetor[i] < seqValues->min) {
-      seqValues->min = vetor[i];
+    if(vetor[i] < seqValues.min) {
+      seqValues.min = vetor[i];
     }
   }
 
@@ -113,28 +109,29 @@ int main(int argc, char *argv[]) {
     }
 
     // atualiza os valores minimos e maximos com as saidas das threads
-    if (retorno->max > conValues->max) {
-      conValues->max = retorno->max;
+    if (retorno->max > conValues.max) {
+      conValues.max = retorno->max;
     }
-    if (retorno->min < conValues->min) {
-      conValues->min = retorno->min;
+    if (retorno->min < conValues.min) {
+      conValues.min = retorno->min;
     }
   }
+  
   GET_TIME(finish);
   printf("Tempo concorrente: %lf\n", finish-start);
 
   // testa se as saidas estao iguais
-  if(seqValues->min == conValues->min && seqValues->max == conValues->max) {
+  if(seqValues.min == conValues.min && seqValues.max == conValues.max) {
     printf("Saidas conferem.\n");
   } else {
     printf("Erro nas saidas.\n");
-    printf("Sequencial ( min: %.lf | max: %.lf )\n", seqValues->min, seqValues->max);
-    printf("Concorrente ( min: %.lf | max: %.lf )\n", conValues->min, conValues->max);
+    printf("Sequencial ( min: %.lf | max: %.lf )\n", seqValues.min, seqValues.max);
+    printf("Concorrente ( min: %.lf | max: %.lf )\n", conValues.min, conValues.max);
     return 2;
   }
 
   // exibir os resultados
-  // printf("Valor minimo: %.lf\nValor maximo: %.lf\n", conValues->min, conValues->max);
+  // printf("Valor minimo: %.lf\nValor maximo: %.lf\n", conValues.min, conValues.max);
 
   free(vetor);
   free(tid);
