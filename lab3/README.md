@@ -18,13 +18,13 @@
 | **2 threads** | 0.009973 |
 | **4 threads** | 0.005791 |
 
-### D10<sup>9</sup>
+### D10<sup>8</sup>
 
 | Tipo | Tempo |
 | --- | --- |
-| **Sequencial** | 0.649609 |
-| **2 threads** | 0.400962 |
-| **4 threads** | 0.276241 |
+| **Sequencial** | 0.165773 |
+| **2 threads** | 0.108742 |
+| **4 threads** | 0.078515 |
 
 ## Aceleração
 
@@ -42,9 +42,9 @@
 | **2 threads** | 1.64 |
 | **4 threads** | 2.82 |
 
-### D10<sup>9</sup>
+### D10<sup>8</sup>
 
 | Threads | Aceleração |
 | --- | --- |
-| **2 threads** | 1.62 |
-| **4 threads** | 2.35 |
+| **2 threads** | 1.52 |
+| **4 threads** | 2.11 |
