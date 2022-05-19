@@ -3,7 +3,7 @@
 #include <pthread.h>
 
 // uma thread por mensagem
-#define NTHREADS 4
+#define NTHREADS 5
 
 int total = 0; 
 pthread_mutex_t mutex; 
@@ -76,14 +76,14 @@ void *bemVindo (void *t) {
 
   pthread_mutex_lock(&mutex);
   total++; // atualiza o total de mensagens
-  pthread_cond_broadcast(&cond_vinda); // sinaliza caso a thread 1 esteja esperando
+  pthread_cond_broadcast(&cond_vinda); // sinaliza as outras threads que estejam esperando para que possam imprimir
   pthread_mutex_unlock(&mutex);
 
   return NULL;
 }
 
 // criar as threads
-void createThreads(pthread_t *tids, int numThreads) {
+void createThreads(pthread_t *tids, int nthreads) {
   int error;
 
   error = pthread_create(&tids[0], NULL, aVontade, NULL);
@@ -99,8 +99,8 @@ void createThreads(pthread_t *tids, int numThreads) {
 }
 
 // aguarda o termino das threads
-void joinThreads(pthread_t *tids, int numThreads) {
-  for (int i = 0; i < numThreads; i++) {
+void joinThreads(pthread_t *tids, int nthreads) {
+  for (int i = 0; i < nthreads; i++) {
     if (pthread_join(tids[i], NULL)) {
       fprintf(stderr, "ERRO--pthread_join()\n");
       exit(2);
