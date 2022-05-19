@@ -17,7 +17,8 @@ void *volteSempre (void *t) {
   pthread_mutex_unlock(&mutex); 
 
   printf("Volte sempre!\n");
-  return NULL;
+  
+  pthread_exit(NULL);
 }
 
 void *aVontade (void *t) {
@@ -34,7 +35,7 @@ void *aVontade (void *t) {
   pthread_cond_signal(&cond_volte); // sinaliza caso a thread 1 esteja esperando
   pthread_mutex_unlock(&mutex); 
 
-  return NULL;
+  pthread_exit(NULL);
 }
 
 void *senteSe (void *t) {
@@ -51,7 +52,7 @@ void *senteSe (void *t) {
   pthread_cond_signal(&cond_volte); // sinaliza caso a thread 1 esteja esperando
   pthread_mutex_unlock(&mutex); 
 
-  return NULL;
+  pthread_exit(NULL);
 }
 
 void *copoAgua (void *t) {
@@ -68,7 +69,7 @@ void *copoAgua (void *t) {
   pthread_cond_signal(&cond_volte); // sinaliza caso a thread 1 esteja esperando
   pthread_mutex_unlock(&mutex); 
 
-  return NULL;
+  pthread_exit(NULL);
 }
 
 void *bemVindo (void *t) {
@@ -79,7 +80,7 @@ void *bemVindo (void *t) {
   pthread_cond_broadcast(&cond_vinda); // sinaliza as outras threads que estejam esperando para que possam imprimir
   pthread_mutex_unlock(&mutex);
 
-  return NULL;
+  pthread_exit(NULL);
 }
 
 // criar as threads
