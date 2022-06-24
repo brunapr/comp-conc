@@ -87,11 +87,11 @@ void *bemVindo (void *t) {
 void createThreads(pthread_t *tids, int nthreads) {
   int error;
 
-  error = pthread_create(&tids[0], NULL, aVontade, NULL);
-  error = pthread_create(&tids[1], NULL, bemVindo, NULL);
+  error = pthread_create(&tids[0], NULL, volteSempre, NULL);
+  error = pthread_create(&tids[1], NULL, aVontade, NULL);
   error = pthread_create(&tids[2], NULL, senteSe, NULL);
   error = pthread_create(&tids[3], NULL, copoAgua, NULL);
-  error = pthread_create(&tids[4], NULL, volteSempre, NULL);
+  error = pthread_create(&tids[4], NULL, bemVindo, NULL);
 
   if (error) {
     fprintf(stderr, "ERRO--pthread_create()\n");
