@@ -6,12 +6,10 @@
 #define NTHREADS 5 // uma thread por mensagem
 
 int total = 0; //variavel compartilhada entre as threads
-sem_t cond_vinda, cond_volte; //semaforos para sincronizar a ordem de execucao das threads
+sem_t cond_vinda, cond_volte, cond_exclui; //semaforos para sincronizar a ordem de execucao das threads
 
 void *volteSempre (void *t) {
-  while(total < 3){
-    sem_wait(&cond_volte);
-  }
+  sem_wait(&cond_volte);
 
   printf("Volte sempre!\n");
   
@@ -19,40 +17,49 @@ void *volteSempre (void *t) {
 }
 
 void *aVontade (void *t) {
-  if(total == 0){
-    sem_wait(&cond_vinda);
-  }
-
+  sem_wait(&cond_vinda);
   printf("Fique a vontade.\n");
+
+  sem_wait(&cond_exclui);
   total++;
 
-  sem_post(&cond_volte);
+  if (total == 3) {
+    sem_post(&cond_volte);
+  } 
+
+  sem_post(&cond_exclui);
 
   pthread_exit(NULL);
 }
 
 void *senteSe (void *t) {
-  if(total == 0){
-    sem_wait(&cond_vinda);
-  }
-
+  sem_wait(&cond_vinda);
   printf("Sente-se por favor.\n");
+
+  sem_wait(&cond_exclui);
   total++;
 
-  sem_post(&cond_volte); 
+  if (total == 3) {
+    sem_post(&cond_volte);
+  } 
+
+  sem_post(&cond_exclui);
 
   pthread_exit(NULL);
 }
 
 void *copoAgua (void *t) {
-  if(total == 0){
-    sem_wait(&cond_vinda);
-  }
-
+  sem_wait(&cond_vinda);
   printf("Aceita um copo d'agua?\n");
+
+  sem_wait(&cond_exclui);
   total++;
 
-  sem_post(&cond_volte); 
+  if (total == 3) {
+    sem_post(&cond_volte);
+  } 
+
+  sem_post(&cond_exclui);
 
   pthread_exit(NULL);
 }
@@ -98,7 +105,8 @@ int main(int argc, char *argv[]) {
   
   // inicializa as variaveis de semaforo
   sem_init (&cond_vinda, 0, 0);
-  sem_init (&cond_volte, 0, 1);
+  sem_init (&cond_volte, 0, 0);
+  sem_init (&cond_exclui, 0, 1);
 
   createThreads(tids, NTHREADS);
   joinThreads(tids, NTHREADS);
